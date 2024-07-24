@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  app:
+    image: my-image
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    depends_on:
+      - db
+    networks:
+      - my-network
+
+  db:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: Trinh1406@
+      MYSQL_DATABASE: sgroup
+    ports:
+      - "3307:3306"
+    networks:
+      - my-network
+
+networks:
+  my-network:
+    driver: bridge

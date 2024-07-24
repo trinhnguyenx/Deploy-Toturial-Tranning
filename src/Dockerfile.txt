@@ -1,0 +1,44 @@
+FROM node:16-alpine
+WORKDIR /app/myapp
+COPY package*.json ./
+RUN npm install
+COPY . .
+EXPOSE 3009
+CMD ["npm", "start" ,"&&", "echo", "Container is running..."]
+#docker build -t my-image:version --force-rm -f Dockerfile .
+# docker run  -p 4000:3009 my-image:1.0
+
+#docker tag ten-hinh-anh:tag ten-nguoi-dung/ten-hinh-anh:tag
+#docker push ten-nguoi-dung/ten-hinh-anh:tag
+
+
+FROM node:20-alpine AS base
+
+RUN npm install
+
+FROM base AS dependencies
+
+WORKDIR /app
+COPY package*.json ./
+RUN npm install 
+
+FROM base AS build
+
+WORKDIR /app
+COPY . .
+COPY --from=dependencies /app/node_modules ./node_modules
+RUN npm run build
+RUN npm prune --prod 
+
+FROM base AS deploy
+
+WORKDIR /app
+COPY --from=build /app/package*.json ./
+COPY --from=build /app/node_modules ./node_modules
+
+
+CMD [ "npm", "start" ]
+
+#docker build -t my-nest-app .   
+#docker run -p 3000:3000 my-nest-app 
+#docker run --env-file .env -p 3000:3000 your-image-name
